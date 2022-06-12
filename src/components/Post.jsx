@@ -1,25 +1,42 @@
+import { format, formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+
 import { Avatar } from "./Avatar"
 import { Comment } from "./Comment"
 import styles from "./Post.module.css"
 
-export function Post() {
+export function Post({ author, content, publishedAt }) {
+  const publishedDateFormatted = format(publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {
+    locale: ptBR
+  })
+
+  const publishedDateRelativeToNow = formatDistanceToNow(publishedAt, {
+    locale: ptBR,
+    addSuffix: true
+  })
+
   return (
     <article className={styles.post}>
       <header>
         <div className={styles.author}>
-          <Avatar src="https://github.com/maykbrito.png" />
+          <Avatar src={author.avatarUrl} />
           <div className={styles.authorInfo}>
-            <strong>Rafael Manfrim</strong>
-            <span>Web Developer</span>
+            <strong>{author.name}</strong>
+            <span>{author.role}</span>
           </div>
         </div>
-        <time title="06 de junho às 21:06h" dateTime="08-06-2022 21:06:30">Publicado a 1h</time>
+        <time title={publishedDateFormatted} dateTime={publishedAt.toISOString()}>
+          {publishedDateRelativeToNow}
+        </time>
       </header>
       <div className={styles.content}>
-        <p>Fala galera</p>
-        <p>Lorem ipsum dolor sit amet, consectetur, sed do eiusmod tempor incididunt. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quasi earum architecto eligendi vero autem facilis voluptatem placeat excepturi vel tempore inventore minus, incidunt, a consequatur delectus rem hic sapiente quos!</p>
-        <p><a href="https://www.linkedin.com/in/rafael-manfrim/">Rafael Manfrim</a></p>
-        <p>Até mais</p>
+        {content.map(line => {
+          if (line.type === "paragraph") {
+            return <p>{line.content}</p>
+          } else if (line.type === "link") {
+            return <p><a>{line.content}</a></p>
+          }
+        })}
       </div>
       <form className={styles.commentForm}>
         <strong>Deixe seu feedback</strong>
